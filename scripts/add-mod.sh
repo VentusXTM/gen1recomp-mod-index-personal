@@ -163,6 +163,7 @@ case "$manifest_cat" in
   QUEST)           mapped="CONTENT" ;;
   MECHANIC)        mapped="GAMEPLAY" ;;
   GRAPHICS)        mapped="ART" ;;
+  VISUAL)          mapped="ART" ;;
   LANGUAGE)        mapped="TRANSLATION" ;;
   AUDIO)           mapped="AUDIO" ;;
   UI)              mapped="UI" ;;
@@ -236,12 +237,13 @@ jq -n \
   printf '%s\n' "$description"
 } > "$folder/description.md"
 
-# --- 6. rebuild the index
+# --- 6. rebuild the index (--releases fills latest/update_check for this
+# entry so the launcher can install it: installUrl requires update_check ok)
 echo "==> rebuilding the index ..."
 if [ -n "$base" ]; then
-  node "$SCRIPT_DIR/build-index.mjs" --base "$base"
+  node "$SCRIPT_DIR/build-index.mjs" --base "$base" --releases
 else
-  node "$SCRIPT_DIR/build-index.mjs"
+  node "$SCRIPT_DIR/build-index.mjs" --releases
 fi
 
 # --- 7. summary

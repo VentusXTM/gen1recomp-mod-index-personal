@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-11T21:35:09.901Z",
-  "count": 90,
+  "generated_at": "2026-08-11T21:46:11.356Z",
+  "count": 91,
   "categories": [
     "GAMEPLAY",
     "CONTENT",
@@ -857,6 +857,28 @@
       },
       "update_check": "ok",
       "source": "official-mirror"
+    },
+    {
+      "id": "crystal_animated_sprites_with_shiny_visuals",
+      "title": "Crystal Animated Sprites with Shiny Visuals",
+      "author": "distilledorion-sketch",
+      "summary": "Crystal animated normal and shiny sprites combined with Gen 2-style shiny sparkles, sound, and delayed enemy cry.",
+      "version": "1.6.0",
+      "categories": [
+        "ART"
+      ],
+      "repo": "https://github.com/distilledorion-sketch/crystal_animated_sprites_with_shiny_visuals",
+      "github": "distilledorion-sketch/crystal_animated_sprites_with_shiny_visuals",
+      "api": 2,
+      "profile": "content",
+      "permissions": [
+        "engine_internals"
+      ],
+      "automatic_version_check": true,
+      "game_version": ">=0.1.33 <2.0.0",
+      "folder": "distilledorion-sketch@crystal_animated_sprites_with_shiny_visuals",
+      "source": "personal",
+      "description_url": "https://ventusxtm.github.io/gen1recomp-mod-index-personal/data/mods/distilledorion-sketch@crystal_animated_sprites_with_shiny_visuals/description.md"
     },
     {
       "folder": "eduardocalafell@auto_battle",

@@ -2,7 +2,7 @@
 //
 // build-index.mjs — merge the official mirror with personal mods.
 //
-//   node scripts/build-index.mjs [--base <url>]
+//   node scripts/build-index.mjs [--base <url>] [--releases]
 //
 // Reads .cache/official.json (written by sync-official.mjs) and scans
 // mods/*/meta.json (one folder per personal mod, named <Author>@<id>, each
@@ -13,6 +13,13 @@
 //
 // --base defaults to this repo's GitHub Pages URL (published from /docs);
 // override with --base <url> when the repo moves.
+//
+// --releases resolves the latest GitHub release for every personal entry
+// that has a `github` slug and automatic_version_check enabled, filling the
+// same `latest` + `update_check` fields the official index nightly fills, so
+// cards in the launcher resolve an installable zip.  Without it, personal
+// entries with an unknown release stay uninstallable ("nothing installable
+// listed") because installUrl requires update_check == "ok".
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -22,7 +29,12 @@ const MAX_CATEGORIES = 4;
 
 const args = process.argv.slice(2);
 let base = DEFAULT_BASE;
+let resolveReleases = false;
 for (let i = 0; i < args.length; i++) {
+  if (args[i] === "--releases") {
+    resolveReleases = true;
+    continue;
+  }
   if (args[i] === "--base") {
     base = args[i + 1];
     if (base == null) {
@@ -64,6 +76,48 @@ function validatePersonal(folder, meta) {
     }
   }
   if (typeof meta.repo !== "string" || meta.repo.length === 0) fail(folder, "repo is required");
+}
+
+// resolveLatest(slug) -> { latest, update_check } | { update_check }
+//
+// Mirrors the official index's update-check shape.  A 404 or empty release
+// list means the author never published an installable release; any other
+// failure is reported as a string update_check the launcher shows verbatim.
+async function resolveLatest(slug) {
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${slug}/releases/latest`,
+      { headers: { Accept: "application/vnd.github+json", "User-Agent": "gen1recomp-mod-index-personal" } }
+    );
+    if (res.status === 404) {
+      return { update_check: "no installable release" };
+    }
+    if (!res.ok) {
+      return { update_check: `error HTTP ${res.status}` };
+    }
+    const release = await res.json();
+    const zip = (release.assets || []).find((a) => String(a.name).endsWith(".zip"));
+    if (!zip) {
+      return { update_check: "no installable release" };
+    }
+    return {
+      latest: {
+        version: release.tag_name,
+        tag: release.tag_name,
+        name: release.name || release.tag_name,
+        prerelease: !!release.prerelease,
+        published_at: release.published_at || null,
+        zip: {
+          name: zip.name,
+          url: zip.browser_download_url,
+          size: zip.size ?? null,
+        },
+      },
+      update_check: "ok",
+    };
+  } catch (e) {
+    return { update_check: `error ${e.message}` };
+  }
 }
 
 // official mirror
@@ -122,16 +176,45 @@ const mods = [...byId.values()].sort((a, b) =>
   String(a.folder).localeCompare(String(b.folder))
 );
 
-const out = {
-  schema_version: 1,
-  generated_at: new Date().toISOString(),
-  count: mods.length,
-  categories: Array.isArray(official.categories) ? official.categories : [],
-  mods,
-};
+async function main() {
+  if (resolveReleases) {
+    for (const e of personal) {
+      if (!e.automatic_version_check || typeof e.github !== "string") continue;
+      const slug = e.github.replace(/^https?:\/\/github\.com\//, "").replace(/\/$/, "");
+      if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(slug)) {
+        console.warn(`build-index: skipping release check for ${e.folder}: bad github slug "${e.github}"`);
+        continue;
+      }
+      const r = await resolveLatest(slug);
+      if (r.latest) {
+        e.latest = r.latest;
+        e.update_check = r.update_check;
+        console.log(
+          `build-index: ${e.folder}: release ${r.latest.version} (${r.latest.zip.name}, ${r.latest.zip.size ?? "?"} bytes)`
+        );
+      } else {
+        e.update_check = r.update_check;
+        console.log(`build-index: ${e.folder}: ${r.update_check}`);
+      }
+    }
+  }
 
-mkdirSync("docs/data", { recursive: true });
-writeFileSync("docs/data/index.json", JSON.stringify(out, null, 2) + "\n");
-console.log(
-  `build-index: ${mods.length} mods (${personal.length} personal) -> docs/data/index.json`
-);
+  const out = {
+    schema_version: 1,
+    generated_at: new Date().toISOString(),
+    count: mods.length,
+    categories: Array.isArray(official.categories) ? official.categories : [],
+    mods,
+  };
+
+  mkdirSync("docs/data", { recursive: true });
+  writeFileSync("docs/data/index.json", JSON.stringify(out, null, 2) + "\n");
+  console.log(
+    `build-index: ${mods.length} mods (${personal.length} personal) -> docs/data/index.json`
+  );
+}
+
+main().catch((e) => {
+  console.error(`build-index: ${e.message}`);
+  process.exit(1);
+});

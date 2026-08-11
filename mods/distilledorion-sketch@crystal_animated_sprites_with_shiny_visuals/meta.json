@@ -1,0 +1,19 @@
+{
+  "id": "crystal_animated_sprites_with_shiny_visuals",
+  "title": "Crystal Animated Sprites with Shiny Visuals",
+  "author": "distilledorion-sketch",
+  "summary": "Crystal animated normal and shiny sprites combined with Gen 2-style shiny sparkles, sound, and delayed enemy cry.",
+  "version": "1.6.0",
+  "categories": [
+    "ART"
+  ],
+  "repo": "https://github.com/distilledorion-sketch/crystal_animated_sprites_with_shiny_visuals",
+  "github": "distilledorion-sketch/crystal_animated_sprites_with_shiny_visuals",
+  "api": 2,
+  "profile": "content",
+  "permissions": [
+    "engine_internals"
+  ],
+  "automatic_version_check": true,
+  "game_version": ">=0.1.33 <2.0.0"
+}
