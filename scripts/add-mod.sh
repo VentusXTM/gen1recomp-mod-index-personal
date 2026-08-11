@@ -18,7 +18,7 @@
 #    AUDIO->AUDIO, UI->UI, TOOL->TOOL, TOTAL_CONVERSION->TOTAL_CONVERSION,
 #    OTHER->OTHER.  Anything else maps to OTHER with a warning.
 # 5. Writes mods/<author>@<id>/meta.json (official schema) and description.md.
-# 6. Rebuilds site/data/index.json via build-index.mjs (--base passthrough).
+# 6. Rebuilds docs/data/index.json via build-index.mjs (--base passthrough).
 #
 # Idempotency: if mods/<author>@<id>/ already exists, prints an error and
 # exits 1 without overwriting.
@@ -40,7 +40,7 @@ Validate a Gen1Recomp mod with the real engine code, then create its listing:
 
   1. validate-mod.sh  (aborts here on failure — nothing is created)
   2. mods/<author>@<id>/meta.json + description.md
-  3. rebuild site/data/index.json
+  3. rebuild docs/data/index.json
 
 Options:
   --engine <semver>   Forwarded to validate-mod.sh (engine version for the
@@ -248,5 +248,5 @@ fi
 echo
 echo "created $folder (meta.json + description.md)"
 echo "  id: $id   version: $version   category: $mapped"
-echo "index rebuilt: $REPO_ROOT/site/data/index.json"
-echo "next: commit $folder and site/data/index.json, then push to publish"
+echo "index rebuilt: $REPO_ROOT/docs/data/index.json"
+echo "next: commit $folder and docs/data/index.json, then push to publish"

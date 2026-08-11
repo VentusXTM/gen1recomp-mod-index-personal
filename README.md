@@ -15,13 +15,13 @@ gen1recomp-mod-index-personal/
   schema/mod.schema.json          JSON schema for one mod meta.json (copied from the official index)
   examples/YourName@example_mod/  Official example entry, copied verbatim
   mods/                           Personal mods, one mods/<Author>@<id>/ folder each
-  site/data/index.json            Generated merged index (build-index output)
+  docs/data/index.json            Generated merged index (build-index output)
   .cache/official.json            Generated mirror of the official feed
   scripts/
     validate-mod.sh               GitHub URL -> latest release zip -> validate-mod.lua
     validate-mod.lua              Core: validates one mod against the REAL engine code
     sync-official.mjs             Fetches and mirrors the official feed
-    build-index.mjs               Merges mirror + personal mods into site/data/index.json
+    build-index.mjs               Merges mirror + personal mods into docs/data/index.json
     test.sh                       Smoke tests
 ```
 
@@ -57,7 +57,7 @@ The engine working tree reports `0.0.0-dev`, so real releases must pass
 # Mirror the official feed (writes .cache/official.json)
 node scripts/sync-official.mjs
 
-# Build the merged index (writes site/data/index.json)
+# Build the merged index (writes docs/data/index.json)
 node scripts/build-index.mjs
 node scripts/build-index.mjs --base https://YOU.github.io/REPO/
 
@@ -88,13 +88,15 @@ To add a mod manually instead:
 The `examples/YourName@example_mod/` folder is a reference entry — copy its
 shape, never keep it as a real listing.
 
-### Base URL placeholder
+### Base URL
 
 `build-index.mjs` rewrites relative `thumbnail` / `description_url` paths
-against the index base. The default is the placeholder
-`https://USER.github.io/gen1recomp-mod-index-personal/` — pass `--base <url>`
-(or edit the default in the script) and replace the placeholder when the repo
-is published.
+against the index base. This repo publishes GitHub Pages from `/docs`, so the
+feed is served at
+`https://ventusxtm.github.io/gen1recomp-mod-index-personal/data/index.json`
+and the default base is
+`https://ventusxtm.github.io/gen1recomp-mod-index-personal/`. Pass `--base
+<url>` to override.
 
 ## Requirements
 

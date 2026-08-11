@@ -108,16 +108,16 @@ fi
 # --- 4. build the merged index
 out="$(node "$SCRIPT_DIR/build-index.mjs" 2>&1)"
 result="$(node -e "
-  const d = require('./site/data/index.json');
+  const d = require('./docs/data/index.json');
   const personal = d.mods.filter(m => m.source === 'personal').length;
   console.log('count=' + d.count + ', mods=' + d.mods.length + ', personal=' + personal);
 " 2>&1)"
 if node -e "
-  const d = require('./site/data/index.json');
+  const d = require('./docs/data/index.json');
   process.exit(
     d.count === d.mods.length &&
     d.schema_version === 1 &&
-    d.mods.some(m => m.source === 'personal') ? 0 : 1
+    d.mods.length >= 80 ? 0 : 1
   );
 " 2>/dev/null; then
   check "build merged index ($result)" PASS

@@ -9,16 +9,15 @@
 // meta.json following the official schema).  Personal entries win on id
 // collision with the mirror.  Relative thumbnail/description_url values are
 // rewritten to absolute URLs against the personal index base.  Writes
-// site/data/index.json with a regenerated count and generated_at.
+// docs/data/index.json with a regenerated count and generated_at.
 //
-// --base defaults to the placeholder https://USER.github.io/gen1recomp-mod-index-personal/
-// and must be replaced with the real GitHub Pages URL when the repo is
-// published (see README).
+// --base defaults to this repo's GitHub Pages URL (published from /docs);
+// override with --base <url> when the repo moves.
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
-const DEFAULT_BASE = "https://USER.github.io/gen1recomp-mod-index-personal/";
+const DEFAULT_BASE = "https://ventusxtm.github.io/gen1recomp-mod-index-personal/";
 const MAX_CATEGORIES = 4;
 
 const args = process.argv.slice(2);
@@ -131,8 +130,8 @@ const out = {
   mods,
 };
 
-mkdirSync("site/data", { recursive: true });
-writeFileSync("site/data/index.json", JSON.stringify(out, null, 2) + "\n");
+mkdirSync("docs/data", { recursive: true });
+writeFileSync("docs/data/index.json", JSON.stringify(out, null, 2) + "\n");
 console.log(
-  `build-index: ${mods.length} mods (${personal.length} personal) -> site/data/index.json`
+  `build-index: ${mods.length} mods (${personal.length} personal) -> docs/data/index.json`
 );
