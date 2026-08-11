@@ -23,6 +23,7 @@
 
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { dirname } from "node:path";
 
 const DEFAULT_BASE = "https://ventusxtm.github.io/gen1recomp-mod-index-personal/";
 const MAX_CATEGORIES = 4;
@@ -30,9 +31,19 @@ const MAX_CATEGORIES = 4;
 const args = process.argv.slice(2);
 let base = DEFAULT_BASE;
 let resolveReleases = false;
+let outPath = "docs/data/index.json";
 for (let i = 0; i < args.length; i++) {
   if (args[i] === "--releases") {
     resolveReleases = true;
+    continue;
+  }
+  if (args[i] === "--out") {
+    outPath = args[i + 1];
+    if (outPath == null) {
+      console.error("build-index: --out needs a value");
+      process.exit(1);
+    }
+    i++;
     continue;
   }
   if (args[i] === "--base") {
@@ -207,10 +218,10 @@ async function main() {
     mods,
   };
 
-  mkdirSync("docs/data", { recursive: true });
-  writeFileSync("docs/data/index.json", JSON.stringify(out, null, 2) + "\n");
+  mkdirSync(dirname(outPath), { recursive: true });
+  writeFileSync(outPath, JSON.stringify(out, null, 2) + "\n");
   console.log(
-    `build-index: ${mods.length} mods (${personal.length} personal) -> docs/data/index.json`
+    `build-index: ${mods.length} mods (${personal.length} personal) -> ${outPath}`
   );
 }
 

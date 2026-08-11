@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-11T21:46:11.356Z",
+  "generated_at": "2026-08-11T21:48:32.981Z",
   "count": 91,
   "categories": [
     "GAMEPLAY",
@@ -878,7 +878,20 @@
       "game_version": ">=0.1.33 <2.0.0",
       "folder": "distilledorion-sketch@crystal_animated_sprites_with_shiny_visuals",
       "source": "personal",
-      "description_url": "https://ventusxtm.github.io/gen1recomp-mod-index-personal/data/mods/distilledorion-sketch@crystal_animated_sprites_with_shiny_visuals/description.md"
+      "description_url": "https://ventusxtm.github.io/gen1recomp-mod-index-personal/data/mods/distilledorion-sketch@crystal_animated_sprites_with_shiny_visuals/description.md",
+      "latest": {
+        "version": "v1.6",
+        "tag": "v1.6",
+        "name": "Crystal Animated Sprites with Shiny Visuals v1.6",
+        "prerelease": false,
+        "published_at": "2026-08-10T19:40:30Z",
+        "zip": {
+          "name": "crystal_animated_sprites_with_shiny_visuals_v1.6.zip",
+          "url": "https://github.com/distilledorion-sketch/crystal_animated_sprites_with_shiny_visuals/releases/download/v1.6/crystal_animated_sprites_with_shiny_visuals_v1.6.zip",
+          "size": 7792158
+        }
+      },
+      "update_check": "ok"
     },
     {
       "folder": "eduardocalafell@auto_battle",

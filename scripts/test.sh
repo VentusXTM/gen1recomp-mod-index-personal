@@ -105,15 +105,16 @@ else
   check "sync official mirror" FAIL
 fi
 
-# --- 4. build the merged index
-out="$(node "$SCRIPT_DIR/build-index.mjs" 2>&1)"
+# --- 4. build the merged index (to a temp file: never overwrite the
+# production docs/data/index.json that add-mod.sh generated with --releases)
+out="$(node "$SCRIPT_DIR/build-index.mjs" --out "$TMP/merged.json" 2>&1)"
 result="$(node -e "
-  const d = require('./docs/data/index.json');
+  const d = require('$TMP/merged.json');
   const personal = d.mods.filter(m => m.source === 'personal').length;
   console.log('count=' + d.count + ', mods=' + d.mods.length + ', personal=' + personal);
 " 2>&1)"
 if node -e "
-  const d = require('./docs/data/index.json');
+  const d = require('$TMP/merged.json');
   process.exit(
     d.count === d.mods.length &&
     d.schema_version === 1 &&
