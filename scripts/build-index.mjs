@@ -6,10 +6,13 @@
 //
 // Reads .cache/official.json (written by sync-official.mjs) and scans
 // mods/*/meta.json (one folder per personal mod, named <Author>@<id>, each
-// meta.json following the official schema).  Personal entries win on id
-// collision with the mirror.  Relative thumbnail/description_url values are
-// rewritten to absolute URLs against the personal index base.  Writes
-// docs/data/index.json with a regenerated count and generated_at.
+// meta.json following the official schema).  Only mirror ids listed in
+// allowlist.json enter the feed; every other mirrored mod stays in
+// stash/mods.json, outside docs/, so gen1recomp never indexes it.  Personal
+// entries win on id collision with the mirror.  Relative
+// thumbnail/description_url values are rewritten to absolute URLs against
+// the personal index base.  Writes docs/data/index.json with a regenerated
+// count and generated_at.
 //
 // --base defaults to this repo's GitHub Pages URL (published from /docs);
 // override with --base <url> when the repo moves.
@@ -131,7 +134,9 @@ async function resolveLatest(slug) {
   }
 }
 
-// official mirror
+// official mirror — only allowlisted ids enter the served feed; the rest
+// stay stashed in stash/mods.json (outside docs/), ready to be re-enabled
+// one by one by adding their id to allowlist.json.
 let official;
 try {
   official = JSON.parse(readFileSync(".cache/official.json", "utf8"));
@@ -145,6 +150,18 @@ if (!Array.isArray(official.mods)) {
   console.error("build-index: .cache/official.json has no mods array");
   process.exit(1);
 }
+
+let allowlist = { mirror_ids: [] };
+try {
+  allowlist = JSON.parse(readFileSync("allowlist.json", "utf8"));
+} catch {
+  console.error("build-index: cannot read allowlist.json");
+  process.exit(1);
+}
+const allowed = new Set(
+  Array.isArray(allowlist.mirror_ids) ? allowlist.mirror_ids : []
+);
+const officialMods = official.mods.filter((m) => allowed.has(m.id));
 
 // personal entries: one mods/<Author>@<id>/ folder each
 const personal = [];
@@ -173,7 +190,7 @@ if (existsSync("mods")) {
 
 // merge: personal wins on id collision with the mirror
 const byId = new Map();
-for (const m of official.mods) byId.set(m.id, m);
+for (const m of officialMods) byId.set(m.id, m);
 for (const e of personal) {
   if (byId.has(e.id)) {
     const other = byId.get(e.id);
@@ -221,7 +238,7 @@ async function main() {
   mkdirSync(dirname(outPath), { recursive: true });
   writeFileSync(outPath, JSON.stringify(out, null, 2) + "\n");
   console.log(
-    `build-index: ${mods.length} mods (${personal.length} personal) -> ${outPath}`
+    `build-index: ${mods.length} mods (${personal.length} personal, ${officialMods.length} allowlisted mirror) -> ${outPath}`
   );
 }
 

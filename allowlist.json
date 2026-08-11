@@ -1,0 +1,7 @@
+{
+  "mirror_ids": [
+    "qol_toggles",
+    "quality_of_life"
+  ],
+  "_comment": "Only these official-mirror mod ids are included in the served feed. All other mirrored mods stay in stash/mods.json, outside docs/, so gen1recomp cannot index them. To make one discoverable again, add its id here and run: node scripts/build-index.mjs --releases && bash scripts/test.sh"
+}

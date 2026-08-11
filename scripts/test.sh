@@ -114,18 +114,31 @@ result="$(node -e "
   console.log('count=' + d.count + ', mods=' + d.mods.length + ', personal=' + personal);
 " 2>&1)"
 if node -e "
+  const fs = require('fs');
   const d = require('$TMP/merged.json');
+  const allowed = new Set(require('./allowlist.json').mirror_ids || []);
+  const personalFolders = fs.existsSync('mods')
+    ? fs.readdirSync('mods').filter(f => fs.existsSync('mods/' + f + '/meta.json'))
+    : [];
+  const byId = new Map(d.mods.map(m => [m.id, m]));
+  const okAllowed = [...allowed].every(id => byId.has(id));
+  const okPersonal = personalFolders.every(f => {
+    const meta = require('./mods/' + f + '/meta.json');
+    return byId.has(meta.id) && byId.get(meta.id).source === 'personal';
+  });
+  const noStray = d.mods.every(m => m.source === 'personal' || allowed.has(m.id));
   process.exit(
     d.count === d.mods.length &&
     d.schema_version === 1 &&
-    d.mods.length >= 80 ? 0 : 1
+    okAllowed && okPersonal && noStray &&
+    d.mods.length === allowed.size + personalFolders.length ? 0 : 1
   );
 " 2>/dev/null; then
-  check "build merged index ($result)" PASS
+  check "build merged index: allowlist + personal only ($result)" PASS
 else
   printf '%s\n' "$out"
   printf '%s\n' "$result"
-  check "build merged index" FAIL
+  check "build merged index: allowlist + personal only" FAIL
 fi
 
 echo

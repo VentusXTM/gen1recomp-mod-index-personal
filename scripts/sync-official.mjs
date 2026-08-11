@@ -8,7 +8,12 @@
 // thumbnail and description_url into absolute URLs against the official
 // GitHub Pages site, tags each entry with "source": "official-mirror", and
 // records mirror_of / mirrored_at at the top level.  Everything else is
-// preserved verbatim.  Writes .cache/official.json.
+// preserved verbatim.
+//
+// Writes .cache/official.json (build input) and stash/mods.json (the full
+// mirror kept OUTSIDE docs/, so gen1recomp never indexes it).  Only the ids
+// in allowlist.json are served in the public feed; the rest stay stashed and
+// can be made discoverable one by one.
 
 import { mkdirSync, writeFileSync } from "node:fs";
 
@@ -50,4 +55,9 @@ const out = {
 
 mkdirSync(".cache", { recursive: true });
 writeFileSync(".cache/official.json", JSON.stringify(out, null, 2) + "\n");
-console.log(`sync-official: mirrored ${mods.length} mods -> .cache/official.json`);
+
+// Full mirror stash, outside docs/ so it is never served/indexable.
+mkdirSync("stash", { recursive: true });
+writeFileSync("stash/mods.json", JSON.stringify(out, null, 2) + "\n");
+
+console.log(`sync-official: mirrored ${mods.length} mods -> .cache/official.json + stash/mods.json`);
