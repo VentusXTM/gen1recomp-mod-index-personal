@@ -1,0 +1,10 @@
+# Generated artifacts
+.cache/
+
+# OS / editor noise
+.DS_Store
+*.log
+
+# Scratch
+node_modules/
+*.zip
